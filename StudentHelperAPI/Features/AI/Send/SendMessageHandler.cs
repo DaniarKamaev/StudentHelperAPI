@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StudentHelperAPI.Core.Abstractions;
 using StudentHelperAPI.Core.Common;
 using StudentHelperAPI.Features.AI.Send;
+using StudentHelperAPI.Features.Authentication;
 using StudentHelperAPI.Models;
 
 namespace StudentHelperAPI.Features.AI.Send
@@ -11,22 +12,37 @@ namespace StudentHelperAPI.Features.AI.Send
     {
         private readonly HelperDbContext _context;
         private readonly IAiService _aiService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<SendMessageHandler> _logger;
 
         public SendMessageHandler(
             HelperDbContext context,
             IAiService aiService,
+            IHttpContextAccessor httpContextAccessor,
             ILogger<SendMessageHandler> logger)
         {
             _context = context;
             _aiService = aiService;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Result<SendMessageResponse>> Handle(SendMessageRequest request, CancellationToken cancellationToken)
         {
             try
             {
+                var userId = AuthHelper.GetCurrentUserId(_httpContextAccessor);
+
+                var existingConversation = await _context.AiConversations
+                    .Where(c => c.UserId == userId && c.ContextType == request.ContextType)
+                    .OrderByDescending(c => c.UpdatedAt)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                AiConversation conversation;
+
+                if (userId == Guid.Parse("00000000-0000-0000-0000-000000000001"))
+                    return Result.Failure<SendMessageResponse>("Ты не зарегистрирован");
+
                 _logger.LogInformation("=== START AI REQUEST ===");
                 _logger.LogInformation("User: {UserId}, Context: {ContextType}",
                     request.UserId, request.ContextType);
@@ -42,15 +58,25 @@ namespace StudentHelperAPI.Features.AI.Send
 
                 _logger.LogInformation("AI response received: {Length} chars", aiResult.Value.Length);
                 //TODU Не создавать каждый раз новый чат, нормально сохронять в бд
-                var conversation = new AiConversation
+                if (existingConversation == null ||
+                        (DateTime.UtcNow - existingConversation.UpdatedAt.GetValueOrDefault(DateTime.MinValue)).TotalMinutes > 60)
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = request.UserId,
-                    Title = request.Message.Length > 50 ? request.Message[..47] + "..." : request.Message,
-                    ContextType = request.ContextType,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
+                    conversation = new AiConversation
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        Title = request.Message.Length > 50 ? request.Message[..47] + "..." : request.Message,
+                        ContextType = request.ContextType,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    _context.AiConversations.Add(conversation);
+                }
+                else
+                {
+                    conversation = existingConversation;
+                    conversation.UpdatedAt = DateTime.UtcNow;
+                }
 
                 var userMessage = new AiMessage
                 {

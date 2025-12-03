@@ -6,9 +6,8 @@ namespace StudentHelperAPI.Features.AI.Send
     {
         public static void SendMessageMap(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/api/ai/chat", async (SendMessageCommand request, ISender sender) =>
+            app.MapPost("/helper/ai/chat", async (SendMessageCommand request, ISender sender) =>
             {
-                // Временно используем тестовый userId
                 var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
                 var validContextTypes = new[] { "math", "programming", "lectures", "general" };
@@ -28,6 +27,7 @@ namespace StudentHelperAPI.Features.AI.Send
                     ? Results.Ok(result.Value)
                     : Results.BadRequest(new { error = result.Error });
             })
+            .RequireAuthorization()
             .WithName("SendMessage")
             .WithOpenApi();
         }
