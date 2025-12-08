@@ -29,6 +29,18 @@ namespace StudentHelperAPI.Features.Authentication
             return Guid.TryParse(userIdClaim, out Guid userId) ? userId :
                 Guid.Parse("00000000-0000-0000-0000-000000000001");
         }
+        public static Guid GetCurrentAuthor_id(IHttpContextAccessor httpContextAccessor)
+        {
+            var user = httpContextAccessor.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated != true)
+                return Guid.Parse("00000000-0000-0000-0000-000000000001"); ;
+
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                             ?? user.FindFirst("author_id")?.Value;
+
+            return Guid.TryParse(userIdClaim, out Guid userId) ? userId :
+                Guid.Parse("00000000-0000-0000-0000-000000000001");
+        }
     }
 }
 

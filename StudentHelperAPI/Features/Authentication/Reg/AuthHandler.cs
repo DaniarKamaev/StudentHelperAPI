@@ -15,7 +15,7 @@ namespace StudentHelperAPI.Features.Authentication.Reg
         public async Task<AuthResponse> Handle(AuthRequest request, CancellationToken cancellationToken)
         {
             var password = HashCreater.HashPassword(request.password);
-            var user = new User
+            var user = new Models.User
             {
                 Email = request.email,
                 PasswordHash = password,

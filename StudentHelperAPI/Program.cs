@@ -5,6 +5,10 @@ using StudentHelperAPI.Core.Abstractions;
 using StudentHelperAPI.Features.AI.Send;
 using StudentHelperAPI.Features.Authentication.Auth;
 using StudentHelperAPI.Features.Authentication.Reg;
+using StudentHelperAPI.Features.User.Lectures.ReadLectureOnSubject;
+using StudentHelperAPI.Features.User.Publications.AddPublication;
+using StudentHelperAPI.Features.User.Publications.ReadCurrentPublications;
+using StudentHelperAPI.Features.User.Publications.ReadPublications;
 using StudentHelperAPI.Infrastructure.Services;
 using StudentHelperAPI.Models;
 using System.Text;
@@ -75,8 +79,10 @@ app.UseAuthorization();
 app.SendMessageMap();
 app.AuthMap();
 app.RegMap();
-
-// Health check endpoint
+app.GetLectureMap();
+app.AddPublicationMap();
+app.ReadPublicationsMap();
+app.ReadCurrentPublicationsMap();
 app.MapGet("/", () => "Student Helper API with GigaChat is running!");
 app.MapGet("/health", () => "Healthy");
 

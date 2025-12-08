@@ -35,7 +35,7 @@ namespace StudentHelperAPI.Features.Authentication.Auth
             }
             return new AuthResponse(null, false, "Неверный логин или пароль");
         }
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(Models.User user)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
