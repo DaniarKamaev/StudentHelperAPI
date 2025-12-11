@@ -32,7 +32,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Features\AI\Get\" />
-	  <Folder Include="Features\Admin\" />
 	</ItemGroup>
 
 </Project>

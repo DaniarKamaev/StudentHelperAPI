@@ -3,6 +3,17 @@ namespace StudentHelperAPI.Features.Authentication
 {
     public static class AuthHelper
     {
+        public static Guid? GetCurrentGroupId(IHttpContextAccessor httpContextAccessor)
+        {
+            var user = httpContextAccessor.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated != true)
+                return null; ;
+
+            var userIdClaim = user.FindFirst("GroupId")?.Value;
+
+            return Guid.TryParse(userIdClaim, out Guid groupId) ? groupId :
+                null;
+        }
         public static string GetCurrentRole(IHttpContextAccessor httpContextAccessor)
         {
             var user = httpContextAccessor.HttpContext?.User;
@@ -16,7 +27,6 @@ namespace StudentHelperAPI.Features.Authentication
 
             return role ?? string.Empty;
         }
-
         public static Guid GetCurrentUserId(IHttpContextAccessor httpContextAccessor)
         {
             var user = httpContextAccessor.HttpContext?.User;

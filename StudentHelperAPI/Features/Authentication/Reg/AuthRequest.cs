@@ -7,5 +7,6 @@ namespace StudentHelperAPI.Features.Authentication.Reg
         string password,
         string firstNamem,
         string lastName,
-        string role) : IRequest<AuthResponse>;
+        string role,
+        string GrupId) : IRequest<AuthResponse>;
 }
