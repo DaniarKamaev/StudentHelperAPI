@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudentHelperAPI.Core.Abstractions;
 using StudentHelperAPI.Features.Admin.AddGroup;
+using StudentHelperAPI.Features.Admin.AddLectureOnSubject;
 using StudentHelperAPI.Features.AI.Send;
 using StudentHelperAPI.Features.Authentication.Auth;
 using StudentHelperAPI.Features.Authentication.Reg;
@@ -85,6 +86,7 @@ app.AddPublicationMap();
 app.ReadPublicationsMap();
 app.ReadCurrentPublicationsMap();
 app.AddGroupMap();
+app.AddLectureOnSubjectMap();
 app.MapGet("/", () => "Student Helper API with GigaChat is running!");
 app.MapGet("/health", () => "Healthy");
 
